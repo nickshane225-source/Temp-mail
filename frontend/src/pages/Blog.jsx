@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Footer from '../components/Footer.jsx';
 
 export default function Blog() {
   const [posts, setPosts] = useState([]);
@@ -152,9 +153,7 @@ export default function Blog() {
         )}
       </main>
 
-      <footer className="border-t border-slate-200 dark:border-slate-800 mt-20 py-8 text-center text-xs text-slate-500">
-        <p>© {new Date().getFullYear()} TempMail. Disposable, secure, anonymous email service.</p>
-      </footer>
+      <Footer />
     </div>
   );
 }

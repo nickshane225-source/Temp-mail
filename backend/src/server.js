@@ -7,6 +7,7 @@ import { startSmtp } from './smtp.js';
 import { startGridFSCleanupJob, startAutoCleanupJob } from './cleanup.js';
 import { checkAllDomainsHealth } from './utils/domainHealth.js';
 import { startGeminiBlogScheduler } from './services/geminiBlog.js';
+import { ensureCornerstoneArticles } from './utils/cornerstoneArticles.js';
 
 if (!process.env.MONGO_URI || !process.env.MONGO_URI.trim()) {
   console.error('FATAL: MONGO_URI environment variable is missing.');
@@ -49,6 +50,9 @@ if (adminCount === 0) {
   });
   console.log(`Auto-seeded initial admin account: ${adminEmail}`);
 }
+
+// Seed permanent high-authority cybersecurity & privacy articles for Google AdSense and SEO
+await ensureCornerstoneArticles();
 
 startGridFSCleanupJob();
 startAutoCleanupJob();

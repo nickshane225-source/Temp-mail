@@ -2,6 +2,7 @@ import 'dotenv/config';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 import { Admin, Domain, Post } from './models.js';
+import { ensureCornerstoneArticles } from './utils/cornerstoneArticles.js';
 
 await mongoose.connect(process.env.MONGO_URI);
 const email = process.env.ADMIN_EMAIL, password = process.env.ADMIN_PASSWORD;
@@ -32,6 +33,8 @@ await Post.updateOne(
   },
   { upsert: true }
 );
+
+await ensureCornerstoneArticles();
 
 console.log(`Admin ready: ${email}`);
 process.exit(0);

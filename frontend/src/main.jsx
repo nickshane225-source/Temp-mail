@@ -15,6 +15,8 @@ import Login from './pages/Login.jsx';
 import Signup from './pages/Signup.jsx';
 import Account from './pages/Account.jsx';
 import ConfirmLink from './pages/ConfirmLink.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import TermsOfService from './pages/TermsOfService.jsx';
 import './styles.css';
 
 // Register PWA Service Worker (App Shell caching only)
@@ -57,6 +59,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/signup" element={<Signup />} />
           <Route path="/account" element={<Account />} />
           <Route path="/confirm-link" element={<ConfirmLink />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
         </Routes>
       </ConfirmProvider>
     </AuthProvider>

@@ -153,6 +153,10 @@ r.get('/sitemap.xml', async (req, res) => {
   const urls = [
     `<url><loc>${baseUrl}/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>`,
     `<url><loc>${baseUrl}/blog</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`,
+    `<url><loc>${baseUrl}/privacy</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`,
+    `<url><loc>${baseUrl}/terms</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>`,
+    `<url><loc>${baseUrl}/premium</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>`,
+    `<url><loc>${baseUrl}/api/docs</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>`,
     ...posts.map((p) => `<url><loc>${baseUrl}/blog/${p.slug}</loc><lastmod>${new Date(p.updatedAt || Date.now()).toISOString().slice(0, 10)}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>`),
   ];
 

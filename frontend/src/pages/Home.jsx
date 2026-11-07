@@ -7,6 +7,7 @@ import { api } from '../api';
 import { LANGUAGES, getInitialLang, applyLanguage, translate } from '../i18n';
 import { rewriteHtmlLinks } from '../utils/linkSafety';
 import { useAuth } from '../auth/AuthContext';
+import Footer from '../components/Footer.jsx';
 
 const KEY = 'tm_box';
 const BOXES_KEY = 'tm_boxes';
@@ -1560,6 +1561,8 @@ export default function Home() {
           </article>
         </section>
       </main>
+
+      <Footer />
 
       {/* QR Code Modal */}
       {showQr && (

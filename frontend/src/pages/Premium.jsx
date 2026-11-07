@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import Footer from '../components/Footer.jsx';
 
 export default function Premium() {
   const { user, token, isPremium, refreshUser } = useAuth();
@@ -433,6 +434,8 @@ export default function Premium() {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

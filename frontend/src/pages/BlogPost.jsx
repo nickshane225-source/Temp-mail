@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
+import Footer from '../components/Footer.jsx';
 
 export default function BlogPost() {
   const { slug } = useParams();
@@ -130,6 +131,8 @@ export default function BlogPost() {
           </article>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 }
