@@ -82,8 +82,17 @@ export async function generateBlogPostWithGemini({ customTopic, author = 'TempMa
   }
 
   const settings = await getSettings();
-  const textModel = settings.geminiModel || 'gemini-3.8-flash';
-  const imageModel = settings.geminiImageModel || 'gemini-nano-banana-2.1';
+  const configuredTextModel = settings.geminiModel || 'gemini-3.8-flash';
+  const configuredImageModel = settings.geminiImageModel || 'gemini-nano-banana-2.1';
+
+  // Candidate models in priority order for resilience against 503 high-demand spikes
+  const candidateTextModels = [
+    configuredTextModel,
+    'gemini-3.5-flash-lite',
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+  ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
   // Choose topic
   const topic = customTopic || DEFAULT_BLOG_TOPICS[Math.floor(Math.random() * DEFAULT_BLOG_TOPICS.length)];
@@ -104,28 +113,38 @@ Your response MUST be ONLY valid JSON matching this schema exactly (without mark
   "body": "Detailed article in Markdown format. Include an introduction explaining why this matters now, 3-4 structured sections with H2 and H3 headings, actionable privacy tips, bullet points, real-world examples, and a conclusion on using temporary email to stay safe."
 }`;
 
-  let articleData;
-  try {
-    const interaction = await ai.interactions.create({
-      model: textModel,
-      input: prompt,
-    });
+  let articleData = null;
+  let lastTextError = null;
 
-    const rawText = (interaction.output_text || '').trim();
-    const cleanJson = rawText
-      .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/\s*```$/i, '')
-      .trim();
+  for (const modelToTry of candidateTextModels) {
+    try {
+      console.log(`[Gemini Blog] Attempting content research using model "${modelToTry}"...`);
+      const interaction = await ai.interactions.create({
+        model: modelToTry,
+        input: prompt,
+      });
 
-    articleData = JSON.parse(cleanJson);
-  } catch (err) {
-    // If JSON parse failed, build structured fallback from raw generation
-    throw new Error(`Failed to generate article structure from Gemini: ${err.message}`);
+      const rawText = (interaction.output_text || '').trim();
+      const cleanJson = rawText
+        .replace(/^```json\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+
+      articleData = JSON.parse(cleanJson);
+      if (articleData?.title && articleData?.body) {
+        console.log(`[Gemini Blog] Successfully generated article with model "${modelToTry}".`);
+        break;
+      }
+    } catch (err) {
+      console.warn(`[Gemini Blog] Model "${modelToTry}" error: ${err.message}. Trying next fallback model...`);
+      lastTextError = err;
+      await new Promise((r) => setTimeout(r, 600));
+    }
   }
 
-  if (!articleData.title || !articleData.body) {
-    throw new Error('Gemini response did not contain required title or body fields.');
+  if (!articleData || !articleData.title || !articleData.body) {
+    throw new Error(`Failed to generate article from Gemini: ${lastTextError?.message || 'Empty response'}`);
   }
 
   // Ensure unique slug
@@ -141,25 +160,33 @@ Your response MUST be ONLY valid JSON matching this schema exactly (without mark
     slug = `${slug}-${Date.now().toString().slice(-4)}`;
   }
 
-  // Attempt image generation with Gemini
+  // Attempt image generation with Gemini, with candidate fallbacks
   let coverImage = '';
-  try {
-    const imgPrompt =
-      articleData.imagePrompt ||
-      `Modern high-tech 3D cybersecurity concept art for ${articleData.title}, glowing teal and dark slate, minimalist, no text`;
+  const candidateImageModels = [
+    configuredImageModel,
+    'gemini-nano-banana-2.1',
+    'gemini-3.1-flash-lite-image',
+  ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
-    const imgInteraction = await ai.interactions.create({
-      model: imageModel,
-      input: imgPrompt,
-    });
+  for (const imgModel of candidateImageModels) {
+    try {
+      const imgPrompt =
+        articleData.imagePrompt ||
+        `Modern high-tech 3D cybersecurity concept art for ${articleData.title}, glowing teal and dark slate, minimalist, no text`;
 
-    if (imgInteraction.output_image?.data) {
-      const mime = imgInteraction.output_image.mime_type || 'image/png';
-      coverImage = `data:${mime};base64,${imgInteraction.output_image.data}`;
+      const imgInteraction = await ai.interactions.create({
+        model: imgModel,
+        input: imgPrompt,
+      });
+
+      if (imgInteraction.output_image?.data) {
+        const mime = imgInteraction.output_image.mime_type || 'image/png';
+        coverImage = `data:${mime};base64,${imgInteraction.output_image.data}`;
+        break;
+      }
+    } catch (imgErr) {
+      console.warn(`[Gemini Blog] Image model "${imgModel}" note (${imgErr.message}).`);
     }
-  } catch (imgErr) {
-    console.warn(`[Gemini Blog] AI image generation note (${imgErr.message}). Using vector banner.`);
-    coverImage = generateFallbackCoverSvg(articleData.title, articleData.tags?.[0] || 'Privacy');
   }
 
   // If no coverImage from API, ensure we have the vector cover

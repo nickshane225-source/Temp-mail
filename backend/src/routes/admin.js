@@ -184,7 +184,7 @@ r.post('/firebase', loginLimiter, async (req, res) => {
 // Middleware: Authenticate Admin & attach permissions
 r.use(async (req, res, next) => {
   const authHeader = req.headers.authorization || '';
-  const token = authHeader.replace(/^Bearer\s+/i, '');
+  const token = authHeader.replace(/^Bearer\s+/i, '') || req.query.token;
   if (!token) return res.status(401).json({ error: 'Authentication required' });
 
   try {
