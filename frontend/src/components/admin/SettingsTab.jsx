@@ -233,6 +233,70 @@ export default function SettingsTab() {
           </div>
         </div>
 
+        {/* Google Gemini AI Blog Automation & Research Settings */}
+        <div className="bg-white dark:bg-slate-900 border border-teal-500/30 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>🤖</span> Google Gemini AI Blog Automation
+              </h3>
+              <p className="text-xs text-slate-500">
+                Automatically researches cybersecurity and temp mail topics, synthesizes articles, creates cover graphics, and posts every 24 hours.
+              </p>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold">
+              <input
+                type="checkbox"
+                checked={settings.geminiAutoBlogEnabled !== false}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    geminiAutoBlogEnabled: e.target.checked,
+                  })
+                }
+                className="w-4 h-4 rounded text-teal-600"
+              />
+              <span>Auto-Publish Enabled (24h)</span>
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+                Gemini API Key
+              </label>
+              <input
+                type="password"
+                placeholder={settings.geminiApiKey ? '••••••••••••••••' : 'AIzaSy... (or set GEMINI_API_KEY in .env)'}
+                value={settings.geminiApiKey || ''}
+                onChange={(e) => setSettings({ ...settings, geminiApiKey: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono"
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Saved securely in MongoDB. Falls back to <code className="text-teal-600">process.env.GEMINI_API_KEY</code> if left blank.
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+                Research & Writing Model
+              </label>
+              <select
+                value={settings.geminiModel || 'gemini-3.8-flash'}
+                onChange={(e) => setSettings({ ...settings, geminiModel: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+              >
+                <option value="gemini-3.8-flash">gemini-3.8-flash (Recommended · Fast, Multimodal Research)</option>
+                <option value="gemini-4-argon">gemini-4-argon (Most Powerful Reasoning)</option>
+                <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Fast)</option>
+              </select>
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Image generation automatically uses <code className="text-teal-600">gemini-nano-banana-2.1</code> with SVG fallback.
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Global Announcement Banner Editor */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
@@ -313,8 +377,8 @@ export default function SettingsTab() {
               </button>
             </div>
             {cleanupReport && (
-              <div className="mt-2 text-xs text-emerald-600 font-medium">
-                Cleaned {cleanupReport.deletedMessages || 0} messages & {cleanupReport.deletedMailboxes || 0} mailboxes.
+              <div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                ✓ Purge complete: {cleanupReport.totalDeleted || 0} total records removed from MongoDB ({cleanupReport.messagesDeleted || cleanupReport.deletedMessages || 0} messages, {cleanupReport.mailboxesDeleted || cleanupReport.deletedMailboxes || 0} mailboxes, {cleanupReport.autoBlogPostsDeleted || 0} expired AI blog posts).
               </div>
             )}
           </div>

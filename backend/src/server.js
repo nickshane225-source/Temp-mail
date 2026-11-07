@@ -6,6 +6,7 @@ import { Domain, Admin } from './models.js';
 import { startSmtp } from './smtp.js';
 import { startGridFSCleanupJob, startAutoCleanupJob } from './cleanup.js';
 import { checkAllDomainsHealth } from './utils/domainHealth.js';
+import { startGeminiBlogScheduler } from './services/geminiBlog.js';
 
 if (!process.env.MONGO_URI || !process.env.MONGO_URI.trim()) {
   console.error('FATAL: MONGO_URI environment variable is missing.');
@@ -51,6 +52,7 @@ if (adminCount === 0) {
 
 startGridFSCleanupJob();
 startAutoCleanupJob();
+startGeminiBlogScheduler();
 setInterval(checkAllDomainsHealth, 24 * 60 * 60 * 1000);
 await startSmtp(Number(process.env.SMTP_PORT || 2525));
 app.listen(process.env.PORT || 4000, () => console.log(`Web + API on :${process.env.PORT || 4000}`));
