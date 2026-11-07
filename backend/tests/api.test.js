@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import app from '../src/app.js';
 import { Domain, Mailbox, Message, Admin, Setting, User, Post, Blocklist, Report, AuditLog, Failure, getSettings } from '../src/models.js';
 import { generateSync } from 'otplib';
@@ -902,6 +903,20 @@ describe('Phase 1 Security & Core Tests', () => {
         expect(resPublicAds.status).toBe(200);
         expect(resPublicAds.body.adsEnabled).toBe(true);
         expect(resPublicAds.body.adHeader).toBe('<!-- header ad -->');
+
+        // Verify premium user receives zero ads
+        const premUser = await User.create({
+          email: 'adfreepremium@example.com',
+          isPremium: true,
+          premiumUntil: new Date(Date.now() + 30 * 864e5),
+        });
+        const premToken = jwt.sign({ userId: premUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        const resPremAds = await request(app)
+          .get('/api/config/ads')
+          .set('Authorization', `Bearer ${premToken}`);
+        expect(resPremAds.status).toBe(200);
+        expect(resPremAds.body.adsEnabled).toBe(false);
+        expect(resPremAds.body.adHeader).toBe('');
       });
     });
   });

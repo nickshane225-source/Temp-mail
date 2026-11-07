@@ -90,14 +90,41 @@ function verifyMailboxToken(mailbox, providedToken) {
   return crypto.timingSafeEqual(providedBuf, storedBuf);
 }
 
-// Public Ads Config
-r.get('/config/ads', async (_req, res) => {
+// Public Ads Config (Premium users never receive ad configurations)
+r.get('/config/ads', async (req, res) => {
   const { adsEnabled, adHeader, adBelowCard, adSidebar } = await getSettings();
+
+  // Check if requesting user has an active Premium subscription
+  let isPremium = false;
+  const authHeader = req.headers.authorization || req.headers['x-user-token'] || '';
+  const userToken = authHeader.replace(/^Bearer\s+/i, '').trim();
+  if (userToken) {
+    try {
+      const decoded = jwt.verify(userToken, process.env.JWT_SECRET);
+      const u = await User.findById(decoded.userId).lean();
+      if (u && u.isPremium && (!u.premiumUntil || new Date(u.premiumUntil) > new Date())) {
+        isPremium = true;
+      }
+    } catch {}
+  }
+
+  // Premium subscribers are 100% ad-free
+  if (isPremium) {
+    return res.json({
+      adsEnabled: false,
+      adHeader: '',
+      adBelowCard: '',
+      adSidebar: '',
+      isPremium: true,
+    });
+  }
+
   res.json({
     adsEnabled: !!adsEnabled,
     adHeader: adsEnabled ? (adHeader || '') : '',
     adBelowCard: adsEnabled ? (adBelowCard || '') : '',
     adSidebar: adsEnabled ? (adSidebar || '') : '',
+    isPremium: false,
   });
 });
 

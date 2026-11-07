@@ -293,13 +293,41 @@ export default function Home() {
     applyLanguage(lang);
   }, [lang]);
 
-  // Load Ads Configuration
+  // Load Ads Configuration & Manage Google AdSense (Guaranteed 100% Ad-Free for Premium Users)
   useEffect(() => {
-    fetch('/api/config/ads')
-      .then((r) => r.json())
-      .then(setAds)
+    if (isUserPremium) {
+      setAds({ adsEnabled: false, adHeader: '', adBelowCard: '', adSidebar: '' });
+      try {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.pauseAdRequests = 1;
+      } catch {}
+      // Remove any previously injected AdSense banners or iframes
+      const injected = document.querySelectorAll('.adsbygoogle, ins.adsbygoogle, [id^="google_ads_iframe"]');
+      injected.forEach((el) => {
+        try { el.remove(); } catch {}
+      });
+      return;
+    }
+
+    // For Free users, fetch ads configuration and mount AdSense script
+    api('/config/ads')
+      .then((cfg) => {
+        if (!cfg) return;
+        setAds(cfg);
+        if (cfg.adsEnabled) {
+          const scriptId = 'google-adsense-script';
+          if (!document.getElementById(scriptId)) {
+            const script = document.createElement('script');
+            script.id = scriptId;
+            script.async = true;
+            script.crossOrigin = 'anonymous';
+            script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1052993488526571';
+            document.head.appendChild(script);
+          }
+        }
+      })
       .catch(() => {});
-  }, []);
+  }, [isUserPremium]);
 
   // PWA Install prompt listener
   useEffect(() => {
