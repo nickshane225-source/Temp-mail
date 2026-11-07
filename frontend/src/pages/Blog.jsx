@@ -1,0 +1,118 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+
+export default function Blog() {
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetch('/api/posts')
+      .then((res) => res.json())
+      .then((data) => {
+        setPosts(data.posts || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError('Failed to load blog posts.');
+        setLoading(false);
+      });
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors">
+      {/* Navigation Bar */}
+      <header className="border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+            <span className="p-2 bg-emerald-100 dark:bg-emerald-950 rounded-xl">✉️</span>
+            <span>TempMail</span>
+          </Link>
+          <div className="flex items-center gap-4 text-sm font-medium">
+            <Link to="/" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+              Inbox
+            </Link>
+            <Link to="/api/docs" className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+              API Docs
+            </Link>
+            <Link to="/premium" className="px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors">
+              Premium ⭐
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-4 py-12">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/60 rounded-full">
+            Knowledge Base & Privacy
+          </span>
+          <h1 className="text-4xl font-extrabold tracking-tight mt-4 mb-3">
+            TempMail Blog & Security Insights
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
+            Tips, industry updates, and guides on protecting your primary inbox from spam, data breaches, and tracking.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center py-24">
+            <div className="animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent"></div>
+          </div>
+        ) : error ? (
+          <div className="p-6 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-center">
+            {error}
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8">
+            <p className="text-slate-500">No blog posts published yet. Check back soon!</p>
+          </div>
+        ) : (
+          <div className="grid gap-6">
+            {posts.map((post) => (
+              <article
+                key={post.slug}
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 hover:shadow-lg hover:border-emerald-500/50 transition-all duration-200 flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mb-3">
+                    <time dateTime={post.createdAt}>
+                      {new Date(post.createdAt).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </time>
+                    <span>•</span>
+                    <span>3 min read</span>
+                    <span>•</span>
+                    <span>By {post.author || 'TempMail Security Team'}</span>
+                  </div>
+                  <h2 className="text-2xl font-bold tracking-tight mb-2 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
+                    <Link to={`/blog/${post.slug}`}>{post.title}</Link>
+                  </h2>
+                  <p className="text-slate-600 dark:text-slate-400 line-clamp-3 leading-relaxed text-sm sm:text-base">
+                    {post.metaDescription || 'Click to read this complete guide on privacy and temporary emails.'}
+                  </p>
+                </div>
+                <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between">
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors"
+                  >
+                    Read article <span aria-hidden="true">→</span>
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </main>
+
+      <footer className="border-t border-slate-200 dark:border-slate-800 mt-20 py-8 text-center text-xs text-slate-500">
+        <p>© {new Date().getFullYear()} TempMail. Disposable, secure, anonymous email service.</p>
+      </footer>
+    </div>
+  );
+}

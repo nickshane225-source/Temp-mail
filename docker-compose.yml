@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tempmail-app
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+      - "2525:2525"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - SMTP_PORT=2525
+      - MONGO_URI=mongodb://mongo:27017/tempmail
+      - JWT_SECRET=CHANGE_ME_IN_PRODUCTION_AT_LEAST_32_CHARS_LONG_KEY
+      - INBOUND_SECRET=CHANGE_ME_LONG_RANDOM_VALUE
+      - ADMIN_EMAIL=admin@example.com
+      - ADMIN_PASSWORD=CHANGE_ME_LONG_RANDOM_VALUE
+      - DEFAULT_DOMAIN=yourdomain.com
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  mongo:
+    image: mongo:7
+    container_name: tempmail-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  mongo_data:

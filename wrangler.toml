@@ -1,0 +1,10 @@
+name = "tempmail-router"
+main = "cloudflare-worker.js"
+compatibility_date = "2024-09-23"
+
+[vars]
+# Replace with your deployed backend URL (e.g. https://temp-mail-lx1t.onrender.com)
+BACKEND_URL = "https://temp-mail-lx1t.onrender.com"
+# Must match INBOUND_SECRET in your backend environment / Render dashboard
+INBOUND_SECRET = "tempmail_secret_2026"
+

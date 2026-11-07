@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Install Backend Dependencies
+        run: cd backend && npm install
+
+      - name: Install Frontend Dependencies
+        run: cd frontend && npm install
+
+      - name: Backend Syntax Check
+        run: |
+          node --check backend/src/server.js
+          node --check backend/src/app.js
+          node --check backend/src/models.js
+          node --check backend/src/smtp.js
+          node --check backend/src/cleanup.js
+          node --check backend/src/events.js
+          node --check backend/src/routes/public.js
+          node --check backend/src/routes/admin.js
+          node --check backend/src/utils/extractors.js
+          node --check backend/src/utils/gridfs.js
+          node --check cloudflare-worker.js
+
+      - name: Run Backend Tests
+        run: cd backend && npm test
+
+      - name: Build Frontend
+        run: cd frontend && npm run build
