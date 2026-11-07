@@ -301,7 +301,7 @@ async function run() {
     .set('Authorization', `Bearer ${adminToken}`);
   record('CLN-4', 'GET /api/admin/cleanup-status returns retention status & last run info', resCleanupStatus.status === 200 && resCleanupStatus.body.lastCleanup !== null);
 
-  // TEST 26: Premium 30-day extended inbox creation & extension
+  // TEST 26: Mailbox 30-minute lifetime & +30 minutes extension
   const premUser = await User.create({
     email: 'premiumuser@example.com',
     isPremium: true,
@@ -313,15 +313,15 @@ async function run() {
     .post('/api/mailbox')
     .set('Authorization', `Bearer ${premToken}`)
     .send({ domain: 'testdomain.com' });
-  const is30DaysSeconds = 30 * 24 * 3600;
-  record('PREM-1', 'Premium user mailbox created with 30-day extended lifetime', resPremBox.status === 200 && resPremBox.body.ttlSeconds === is30DaysSeconds);
+  const is30MinsSeconds = 30 * 60;
+  record('PREM-1', 'Mailbox created with 30-minute lifetime for all users', resPremBox.status === 200 && resPremBox.body.ttlSeconds === is30MinsSeconds);
 
-  // Extend inbox as Premium user
+  // Extend inbox adds 30 minutes extra
   const resExtendPrem = await request(app)
     .post(`/api/mailbox/${encodeURIComponent(resPremBox.body.address)}/extend`)
     .set('x-mailbox-token', resPremBox.body.token)
     .set('Authorization', `Bearer ${premToken}`);
-  record('PREM-2', 'Extend inbox as premium subscriber extends by 30 days', resExtendPrem.status === 200 && resExtendPrem.body.ttlSeconds === is30DaysSeconds && resExtendPrem.body.extendedDays === 30);
+  record('PREM-2', 'Extend inbox adds 30 minutes extra', resExtendPrem.status === 200 && resExtendPrem.body.addedMinutes === 30 && resExtendPrem.body.ttlSeconds >= 3500);
 
   // TEST 27: Paginated Users API
   const resUsers = await request(app)

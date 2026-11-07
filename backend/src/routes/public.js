@@ -247,8 +247,8 @@ r.post('/mailbox', create10mLimiter, createDailyLimiter, async (req, res) => {
   }
 
   const address = `${prefix}@${d.name}`;
-  // 30 days extended inbox for Premium subscribers, or configured ttlMinutes for free users
-  const effectiveTtl = isPremium ? 30 * 24 * 60 : ttlMinutes;
+  // Default mailbox lifetime is 30 minutes for all users (free & premium alike)
+  const effectiveTtl = Number(ttlMinutes) || 30;
   const expiresAt = new Date(Date.now() + effectiveTtl * 60000);
 
   // Generate private secret token and store its SHA-256 hash
@@ -515,18 +515,21 @@ r.post('/mailbox/:address/extend', async (req, res) => {
     } catch {}
   }
 
-  const { ttlMinutes } = await getSettings();
-  // Premium users get 30-day extended inboxes (30 * 24 * 60 minutes)
-  const extensionMinutes = isPremium ? 30 * 24 * 60 : ttlMinutes;
-  b.expiresAt = new Date(Date.now() + extensionMinutes * 60000);
+  const currentExp = new Date(b.expiresAt).getTime();
+  const baseTime = currentExp > Date.now() ? currentExp : Date.now();
+  const addedMinutes = 30;
+  // Cap at 30 days into the future to avoid overflow or abuse
+  const maxFuture = Date.now() + 30 * 24 * 60 * 60 * 1000;
+  b.expiresAt = new Date(Math.min(baseTime + addedMinutes * 60 * 1000, maxFuture));
   await b.save();
   await Message.updateMany({ address: b.address }, { expiresAt: b.expiresAt });
+  const totalRemainingSeconds = Math.max(0, Math.floor((b.expiresAt.getTime() - Date.now()) / 1000));
   res.json({
     address: b.address,
     expiresAt: b.expiresAt,
-    ttlSeconds: extensionMinutes * 60,
+    ttlSeconds: totalRemainingSeconds,
+    addedMinutes: 30,
     isPremium,
-    extendedDays: isPremium ? 30 : null,
   });
 });
 

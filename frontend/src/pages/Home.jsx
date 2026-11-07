@@ -343,8 +343,15 @@ export default function Home() {
       if (raw) {
         const list = JSON.parse(raw);
         const valid = list.filter((b) => b && b.address && b.token && new Date(b.expiresAt).getTime() > Date.now());
-        setBoxes(valid);
-        localStorage.setItem(BOXES_KEY, JSON.stringify(valid));
+        // Clamp legacy 30-day mailboxes to 30 minutes
+        const clampedList = valid.map((b) => {
+          if (new Date(b.expiresAt).getTime() - Date.now() > 35 * 60 * 1000) {
+            return { ...b, expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(), ttlSeconds: 1800 };
+          }
+          return b;
+        });
+        setBoxes(clampedList);
+        localStorage.setItem(BOXES_KEY, JSON.stringify(clampedList));
       }
     } catch {}
   }, []);
@@ -393,7 +400,15 @@ export default function Home() {
         try {
           const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
           if (saved && saved.address && saved.token && new Date(saved.expiresAt).getTime() > Date.now()) {
-            setBox(saved);
+            const savedExp = new Date(saved.expiresAt).getTime();
+            // If mailbox expiry was from the legacy 30-day setting, clamp it to 30 minutes
+            if (savedExp - Date.now() > 35 * 60 * 1000) {
+              saved.expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+              saved.ttlSeconds = 1800;
+              saveBox(saved);
+            } else {
+              setBox(saved);
+            }
           } else {
             createMailbox(initialDomain);
           }
@@ -614,8 +629,8 @@ export default function Home() {
   }, [box, loadMessages]);
 
   const left = box ? Math.max(0, Math.floor((new Date(box.expiresAt).getTime() - now) / 1000)) : 0;
-  const initialDuration = 600;
-  const progress = Math.min(1, Math.max(0, left / initialDuration));
+  const maxDuration = Math.max(1800, box?.ttlSeconds || 1800, left);
+  const progress = maxDuration > 0 ? Math.min(1, Math.max(0, left / maxDuration)) : 0;
   const dashoffset = 100 - progress * 100;
 
   const copy = () => {
@@ -641,7 +656,7 @@ export default function Home() {
         method: 'POST',
         token: box.token,
       });
-      saveBox(b);
+      saveBox({ ...box, ...b, token: box.token });
       toast.success(translate(lang, 'timeAddedToast'));
     } catch (e) {
       setError(e.message);
