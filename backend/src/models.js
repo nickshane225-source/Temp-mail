@@ -231,6 +231,7 @@ export async function getSettings() {
     adsEnabled: true,
     adsensePublisherId: 'pub-1052993488526571',
     adsTxt: 'google.com, pub-1052993488526571, DIRECT, f08c47fec0942fa0\n',
+    googleAnalyticsId: 'G-E3TY5VJGNF',
     adHeader: '',
     adBelowCard: '',
     adSidebar: '',

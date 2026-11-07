@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext.jsx';
 import { ConfirmProvider } from './components/ui/ConfirmDialog.jsx';
 import { ThemedToaster } from './components/ui/ThemedToaster.jsx';
@@ -24,8 +24,24 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
   });
 }
 
+// Tracks pageviews across Single Page App route changes in Google Analytics 4
+function AnalyticsTracker() {
+  const location = useLocation();
+  React.useEffect(() => {
+    if (typeof window.gtag === 'function') {
+      window.gtag('event', 'page_view', {
+        page_path: location.pathname + location.search,
+        page_location: window.location.href,
+        page_title: document.title,
+      });
+    }
+  }, [location]);
+  return null;
+}
+
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
+    <AnalyticsTracker />
     <AuthProvider>
       <ConfirmProvider>
         <ThemedToaster />

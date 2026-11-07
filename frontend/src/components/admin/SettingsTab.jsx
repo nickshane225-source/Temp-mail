@@ -428,6 +428,44 @@ export default function SettingsTab() {
           </div>
         </div>
 
+        {/* Google Analytics 4 (GA4) Integration */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                Google Analytics 4 (GA4) Tracking
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                Collects live visitor traffic, demographics, active users, page views, and traffic sources.
+              </p>
+            </div>
+            <a
+              href="https://analytics.google.com"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-teal-600 hover:underline font-semibold"
+            >
+              Open Google Analytics ↗
+            </a>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+              Measurement ID
+            </label>
+            <input
+              type="text"
+              placeholder="G-E3TY5VJGNF"
+              value={settings.googleAnalyticsId ?? 'G-E3TY5VJGNF'}
+              onChange={(e) => setSettings({ ...settings, googleAnalyticsId: e.target.value })}
+              className="w-full md:w-80 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono"
+            />
+            <span className="text-[10px] text-slate-400 mt-1 block">
+              Configured with Stream ID: 16282400882. Enhanced measurement tracks pageviews, scroll depth, and clicks.
+            </span>
+          </div>
+        </div>
+
         {/* Global Announcement Banner Editor */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
