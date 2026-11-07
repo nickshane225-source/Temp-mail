@@ -59,9 +59,22 @@ export function extractCleanEmail(raw) {
   return str.replace(/^["']|["']$/g, '').toLowerCase().trim();
 }
 
-const box = (a) => {
+const box = async (a) => {
   const clean = extractCleanEmail(a);
-  return clean ? Mailbox.findOne({ address: clean }) : null;
+  if (!clean) return null;
+  const b = await Mailbox.findOne({ address: clean });
+  if (b && b.expiresAt) {
+    const diffMs = new Date(b.expiresAt).getTime() - Date.now();
+    // Clamp any legacy multi-day mailbox in database down to 30 minutes
+    if (diffMs > 35 * 60 * 1000) {
+      b.expiresAt = new Date(Date.now() + 30 * 60 * 1000);
+      try {
+        await b.save();
+        await Message.updateMany({ address: b.address }, { expiresAt: b.expiresAt });
+      } catch {}
+    }
+  }
+  return b;
 };
 
 function verifyMailboxToken(mailbox, providedToken) {
@@ -247,8 +260,9 @@ r.post('/mailbox', create10mLimiter, createDailyLimiter, async (req, res) => {
   }
 
   const address = `${prefix}@${d.name}`;
-  // Default mailbox lifetime is 30 minutes for all users (free & premium alike)
-  const effectiveTtl = Number(ttlMinutes) || 30;
+  // Default mailbox lifetime is 30 minutes for all users (or admin configured 5-60 min)
+  const configuredTtl = Number(ttlMinutes);
+  const effectiveTtl = (configuredTtl >= 5 && configuredTtl <= 60) ? configuredTtl : 30;
   const expiresAt = new Date(Date.now() + effectiveTtl * 60000);
 
   // Generate private secret token and store its SHA-256 hash

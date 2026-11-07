@@ -15,17 +15,17 @@ const THEME_KEY = 'tm_theme';
 const READ_KEY = 'tm_read_ids';
 
 const clock = (s) => {
-  if (s >= 86400) {
-    const d = Math.floor(s / 86400);
-    const h = Math.floor((s % 86400) / 3600);
-    return `${d}d ${h}h`;
-  }
-  if (s >= 3600) {
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
+  const safe = Math.max(0, Math.floor(s || 0));
+  // 30-day count is completely removed; clamp any legacy multi-day value to 30 minutes (1800s)
+  const effective = safe > 7200 ? 1800 : safe;
+  if (effective >= 3600) {
+    const h = Math.floor(effective / 3600);
+    const m = Math.floor((effective % 3600) / 60);
     return `${h}h ${m}m`;
   }
-  return `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const m = Math.floor(effective / 60);
+  const sec = effective % 60;
+  return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 };
 const esc = (t) => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const formatBytes = (bytes = 0) => {
@@ -207,7 +207,21 @@ export default function Home() {
   const [domains, setDomains] = useState([]);
   const [domain, setDomain] = useState('');
   const [boxes, setBoxes] = useState([]);
-  const [box, setBox] = useState(null);
+  const [box, setBox] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (saved && saved.address && saved.token && new Date(saved.expiresAt).getTime() > Date.now()) {
+        const savedExp = new Date(saved.expiresAt).getTime();
+        if (savedExp - Date.now() > 35 * 60 * 1000) {
+          saved.expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+          saved.ttlSeconds = 1800;
+          try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch {}
+        }
+        return saved;
+      }
+    } catch {}
+    return null;
+  });
   const [messages, setMessages] = useState([]);
   const [open, setOpen] = useState(null);
   const [now, setNow] = useState(Date.now());
@@ -528,7 +542,12 @@ export default function Home() {
         });
         const list = Array.isArray(res) ? res : (Array.isArray(res?.messages) ? res.messages : []);
         if (res?.expiresAt) {
-          setBox((prev) => (prev ? { ...prev, expiresAt: res.expiresAt } : prev));
+          const remoteExp = new Date(res.expiresAt).getTime();
+          // Never accept a multi-day expiration; clamp any legacy values to 30 mins
+          const effectiveExp = remoteExp - Date.now() > 35 * 60 * 1000
+            ? new Date(Date.now() + 30 * 60 * 1000).toISOString()
+            : res.expiresAt;
+          setBox((prev) => (prev ? { ...prev, expiresAt: effectiveExp } : prev));
         }
         if (res?.isLocked !== undefined) {
           setIsInboxLocked(Boolean(res.isLocked));
@@ -628,7 +647,9 @@ export default function Home() {
     };
   }, [box, loadMessages]);
 
-  const left = box ? Math.max(0, Math.floor((new Date(box.expiresAt).getTime() - now) / 1000)) : 0;
+  const rawLeft = box ? Math.max(0, Math.floor((new Date(box.expiresAt).getTime() - now) / 1000)) : 0;
+  // 30 days time count removed: clamp any legacy multi-day value to 30 minutes (1800s)
+  const left = rawLeft > 7200 ? 1800 : rawLeft;
   const maxDuration = Math.max(1800, box?.ttlSeconds || 1800, left);
   const progress = maxDuration > 0 ? Math.min(1, Math.max(0, left / maxDuration)) : 0;
   const dashoffset = 100 - progress * 100;
