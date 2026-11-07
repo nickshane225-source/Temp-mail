@@ -55,5 +55,17 @@
   "shareUrlReady": "Seu link de compartilhamento está pronto:",
   "revoke": "Revogar",
   "pwaInstall": "📱 Instalar aplicativo",
-  "footer": "As caixas de entrada são privadas e protegidas por token. Nunca compartilhe seu token."
+  "footer": "As caixas de entrada são privadas e protegidas por token. Nunca compartilhe seu token.",
+  "notifyDeniedToast": "Para ativar notificações: clique no cadeado na barra de endereço → Configurações do site → Notificações → Permitir",
+  "notifyEnabledToast": "Notificações na área de trabalho ativadas!",
+  "notifyDisabledToast": "Notificações desativadas.",
+  "addressCopiedToast": "Endereço de e-mail copiado para a área de transferência!",
+  "codeCopiedToast": "Código de verificação copiado para a área de transferência!",
+  "timeAddedToast": "Adicionados 30 minutos à caixa de entrada!",
+  "exportFailed": "Falha na exportação.",
+  "reportSuccessToast": "Obrigado! Esta mensagem foi reportada para análise administrativa.",
+  "confirmTitle": "Tem certeza?",
+  "confirmAction": "Confirmar",
+  "cancelAction": "Cancelar",
+  "deleteKeyConfirm": "Tem certeza de que deseja revogar esta chave de API? Aplicativos que a utilizam perderão o acesso imediatamente."
 }

@@ -55,5 +55,17 @@
   "shareUrlReady": "共有リンクが作成されました:",
   "revoke": "無効化",
   "pwaInstall": "📱 アプリをインストール",
-  "footer": "メールボックスは専用トークンで保護されています。トークンは第三者に教えないでください。"
+  "footer": "メールボックスは専用トークンで保護されています。トークンは第三者に教えないでください。",
+  "notifyDeniedToast": "通知を有効にするには：アドレスバーの鍵アイコンをクリック → サイトの設定 → 通知 → 許可",
+  "notifyEnabledToast": "デスクトップ通知が有効になりました！",
+  "notifyDisabledToast": "通知が無効になりました。",
+  "addressCopiedToast": "メールアドレスをクリップボードにコピーしました！",
+  "codeCopiedToast": "認証コードをクリップボードにコピーしました！",
+  "timeAddedToast": "受信トレイの有効期限を30分延長しました！",
+  "exportFailed": "エクスポートに失敗しました。",
+  "reportSuccessToast": "ご報告ありがとうございます。管理者が確認いたします。",
+  "confirmTitle": "よろしいですか？",
+  "confirmAction": "確認",
+  "cancelAction": "キャンセル",
+  "deleteKeyConfirm": "このAPIキーを失効させてもよろしいですか？使用中のアプリケーションは直ちにアクセスを失います。"
 }

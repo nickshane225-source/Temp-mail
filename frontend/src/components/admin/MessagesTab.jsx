@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
 import Card from './ui/Card';
 import Badge from './ui/Badge';
+import { useConfirm } from '../ui/ConfirmDialog';
 
 export default function MessagesTab() {
+  const confirm = useConfirm();
   const [messages, setMessages] = useState([]);
   const [spamQueue, setSpamQueue] = useState([]);
   const [viewMode, setViewMode] = useState('all'); // 'all' or 'spam_queue'
@@ -66,43 +69,69 @@ export default function MessagesTab() {
 
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    if (!confirm(`Are you sure you want to permanently delete ${selectedIds.size} messages? Any GridFS attachments will also be cleaned up.`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Bulk Delete Messages',
+      description: `Are you sure you want to permanently delete ${selectedIds.size} messages? Any attachments will also be permanently deleted.`,
+      confirmText: `Delete ${selectedIds.size} Messages`,
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     setDeleting(true);
     try {
       await api('/admin/messages/bulk-delete', {
         method: 'POST',
         body: { ids: Array.from(selectedIds) },
       });
+      setSelectedIds(new Set());
       await loadData();
+      toast.success('Selected messages deleted successfully.');
     } catch (err) {
-      alert(err.message || 'Failed to delete messages.');
+      toast.error(err.message || 'Failed to delete messages.');
     } finally {
       setDeleting(false);
     }
   };
 
   const handleBlockSender = async (senderEmail) => {
-    if (!confirm(`Add ${senderEmail} to the global Abuse Blocklist?`)) return;
+    const ok = await confirm({
+      title: 'Block Sender',
+      description: `Add ${senderEmail} to the global Abuse Blocklist?`,
+      confirmText: 'Block Sender',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     try {
       await api('/admin/blocklist', {
         method: 'POST',
         body: { type: 'address', value: senderEmail, reason: 'Blocked from Spam Review Queue' },
       });
-      alert(`Sender ${senderEmail} is now blocked.`);
+      toast.success(`Sender ${senderEmail} is now blocked.`);
+      loadData();
     } catch (err) {
-      alert(err.message || 'Failed to block sender.');
+      toast.error(err.message || 'Failed to block sender.');
     }
   };
 
   const handleDeleteOne = async (id) => {
-    if (!confirm('Delete this message?')) return;
+    const ok = await confirm({
+      title: 'Delete Message',
+      description: 'Are you sure you want to delete this message?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     try {
       await api(`/admin/messages/${id}`, { method: 'DELETE' });
       loadData();
+      toast.success('Message deleted.');
     } catch (err) {
-      alert(err.message || 'Failed to delete message.');
+      toast.error(err.message || 'Failed to delete message.');
     }
   };
 

@@ -55,5 +55,17 @@
   "shareUrlReady": "Tu enlace compartido está listo:",
   "revoke": "Revocar",
   "pwaInstall": "📱 Instalar aplicación",
-  "footer": "Los buzones son privados y están protegidos con autenticación por token. Nunca compartas tu token."
+  "footer": "Los buzones son privados y están protegidos con autenticación por token. Nunca compartas tu token.",
+  "notifyDeniedToast": "Para activar notificaciones: haz clic en el candado de la barra de direcciones → Configuración del sitio → Notificaciones → Permitir",
+  "notifyEnabledToast": "¡Notificaciones de escritorio activadas!",
+  "notifyDisabledToast": "Notificaciones desactivadas.",
+  "addressCopiedToast": "¡Dirección de correo copiada al portapapeles!",
+  "codeCopiedToast": "¡Código de verificación copiado al portapapeles!",
+  "timeAddedToast": "¡Se añadieron 30 minutos a la bandeja!",
+  "exportFailed": "Error al exportar.",
+  "reportSuccessToast": "¡Gracias! Este mensaje ha sido reportado para revisión administrativa.",
+  "confirmTitle": "¿Estás seguro?",
+  "confirmAction": "Confirmar",
+  "cancelAction": "Cancelar",
+  "deleteKeyConfirm": "¿Seguro que deseas revocar esta clave API? Las aplicaciones que la usan perderán acceso de inmediato."
 }

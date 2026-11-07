@@ -55,5 +55,17 @@
   "shareUrlReady": "Votre lien de partage est prêt :",
   "revoke": "Révoquer",
   "pwaInstall": "📱 Installer l'application",
-  "footer": "Les boîtes de réception sont privées et protégées par jeton. Ne partagez jamais votre jeton d'accès."
+  "footer": "Les boîtes de réception sont privées et protégées par jeton. Ne partagez jamais votre jeton d'accès.",
+  "notifyDeniedToast": "Pour activer les notifications : cliquez sur le cadenas dans la barre d'adresse → Paramètres du site → Notifications → Autoriser",
+  "notifyEnabledToast": "Notifications activées !",
+  "notifyDisabledToast": "Notifications désactivées.",
+  "addressCopiedToast": "Adresse e-mail copiée dans le presse-papiers !",
+  "codeCopiedToast": "Code de vérification copié dans le presse-papiers !",
+  "timeAddedToast": "30 minutes supplémentaires ajoutées à la boîte !",
+  "exportFailed": "Échec de l'exportation.",
+  "reportSuccessToast": "Merci ! Ce message a été signalé pour examen administratif.",
+  "confirmTitle": "Êtes-vous sûr ?",
+  "confirmAction": "Confirmer",
+  "cancelAction": "Annuler",
+  "deleteKeyConfirm": "Êtes-vous sûr de vouloir révoquer cette clé API ? Les applications l'utilisant perdront l'accès immédiatement."
 }

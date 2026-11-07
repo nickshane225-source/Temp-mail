@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
 import Card from './ui/Card';
 import Badge from './ui/Badge';
 import Drawer from './ui/Drawer';
+import { useConfirm } from '../ui/ConfirmDialog';
 
 export default function DomainsTab() {
+  const confirm = useConfirm();
   const [domains, setDomains] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -50,8 +53,9 @@ export default function DomainsTab() {
       });
       setNewDomain('');
       loadDomains();
+      toast.success('Domain added successfully.');
     } catch (err) {
-      alert(err.message || 'Failed to add domain.');
+      toast.error(err.message || 'Failed to add domain.');
     } finally {
       setAddingSingle(false);
     }
@@ -69,8 +73,9 @@ export default function DomainsTab() {
       setShowBulkAdd(false);
       setBulkDomainsInput('');
       loadDomains();
+      toast.success(`Processed bulk addition of ${raw.length} domains.`);
     } catch (err) {
-      alert(err.message || 'Bulk addition encountered an error.');
+      toast.error(err.message || 'Bulk addition encountered an error.');
     } finally {
       setAddingBulk(false);
     }
@@ -83,8 +88,9 @@ export default function DomainsTab() {
         body: { active: !currentActive },
       });
       loadDomains();
+      toast.success(`Domain ${currentActive ? 'deactivated' : 'activated'}.`);
     } catch (err) {
-      alert(err.message || 'Failed to update domain state.');
+      toast.error(err.message || 'Failed to update domain state.');
     }
   };
 
@@ -92,8 +98,9 @@ export default function DomainsTab() {
     try {
       await api(`/admin/domains/${id}/make-default`, { method: 'POST' });
       loadDomains();
+      toast.success('Default domain updated.');
     } catch (err) {
-      alert(err.message || 'Failed to set default domain.');
+      toast.error(err.message || 'Failed to set default domain.');
     }
   };
 
@@ -101,26 +108,35 @@ export default function DomainsTab() {
     try {
       await api(`/admin/domains/${id}/check`, { method: 'POST' });
       loadDomains();
+      toast.success('Domain MX health check completed.');
     } catch (err) {
-      alert(err.message || 'Health check failed.');
+      toast.error(err.message || 'Health check failed.');
     }
   };
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to remove domain "${name}"? Existing mailboxes under this domain will stop receiving messages.`)) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Remove Domain',
+      description: `Are you sure you want to remove domain "${name}"? Existing mailboxes under this domain will stop receiving messages.`,
+      confirmText: 'Remove Domain',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     try {
       await api(`/admin/domains/${id}`, { method: 'DELETE' });
       loadDomains();
+      toast.success(`Domain "${name}" removed.`);
     } catch (err) {
-      alert(err.message || 'Failed to delete domain.');
+      toast.error(err.message || 'Failed to delete domain.');
     }
   };
 
   const copyToClipboard = (text, key) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
+    toast.success('DNS record copied to clipboard!');
     setTimeout(() => setCopiedKey(''), 2000);
   };
 

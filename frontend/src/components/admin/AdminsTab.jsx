@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
+import { toast } from 'sonner';
 import { api } from '../../api';
+import { useConfirm } from '../ui/ConfirmDialog';
 
 export default function AdminsTab({ currentAdmin }) {
+  const confirm = useConfirm();
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -48,20 +51,29 @@ export default function AdminsTab({ currentAdmin }) {
       setNewEmail('');
       setNewPassword('');
       loadAdmins();
+      toast.success('Admin user created successfully.');
     } catch (err) {
-      alert(err.message || 'Failed to create admin.');
+      toast.error(err.message || 'Failed to create admin.');
     } finally {
       setCreating(false);
     }
   };
 
   const handleLogoutAll = async () => {
-    if (!confirm('Log out of all active admin sessions on all devices?')) return;
+    const ok = await confirm({
+      title: 'Invalidate All Admin Sessions',
+      description: 'Log out of all active admin sessions across all devices? You will remain logged in on this browser.',
+      confirmText: 'Log Out All Devices',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     try {
       await api('/admin/logout-all', { method: 'POST' });
-      alert('All sessions invalidated.');
+      toast.success('All other admin sessions have been invalidated.');
     } catch (err) {
-      alert(err.message || 'Failed to invalidate sessions.');
+      toast.error(err.message || 'Failed to invalidate sessions.');
     }
   };
 
@@ -74,10 +86,11 @@ export default function AdminsTab({ currentAdmin }) {
         body: { currentPassword: curPass, newPassword: newPass },
       });
       setPassMsg('✓ Password updated successfully.');
+      toast.success('Password updated successfully.');
       setCurPass('');
       setNewPass('');
     } catch (err) {
-      alert(err.message || 'Failed to change password.');
+      toast.error(err.message || 'Failed to change password.');
     }
   };
 
@@ -89,7 +102,7 @@ export default function AdminsTab({ currentAdmin }) {
       const qr = await QRCode.toDataURL(res.uri, { width: 200, margin: 1 });
       setTotpQrDataUrl(qr);
     } catch (err) {
-      alert(err.message || 'Failed to start 2FA setup.');
+      toast.error(err.message || 'Failed to start 2FA setup.');
     }
   };
 
@@ -102,9 +115,10 @@ export default function AdminsTab({ currentAdmin }) {
       });
       setBackupCodes(res.backupCodes || []);
       setTotpQrDataUrl('');
+      toast.success('Two-factor authentication enabled successfully.');
       loadAdmins();
     } catch (err) {
-      alert(err.message || 'Invalid 2FA code.');
+      toast.error(err.message || 'Invalid 2FA code.');
     }
   };
 

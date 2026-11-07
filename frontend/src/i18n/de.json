@@ -55,5 +55,17 @@
   "shareUrlReady": "Ihr Freigabelink ist bereit:",
   "revoke": "Widerrufen",
   "pwaInstall": "📱 App installieren",
-  "footer": "Postfächer sind privat und token-geschützt. Geben Sie Ihr Postfach-Token niemals weiter."
+  "footer": "Postfächer sind privat und token-geschützt. Geben Sie Ihr Postfach-Token niemals weiter.",
+  "notifyDeniedToast": "Um Benachrichtigungen zu aktivieren: Schloss-Symbol in der Adressleiste anklicken → Website-Einstellungen → Benachrichtigungen → Zulassen",
+  "notifyEnabledToast": "Desktop-Benachrichtigungen aktiviert!",
+  "notifyDisabledToast": "Benachrichtigungen deaktiviert.",
+  "addressCopiedToast": "E-Mail-Adresse in die Zwischenablage kopiert!",
+  "codeCopiedToast": "Bestätigungscode in die Zwischenablage kopiert!",
+  "timeAddedToast": "Postfach um 30 Minuten verlängert!",
+  "exportFailed": "Export fehlgeschlagen.",
+  "reportSuccessToast": "Vielen Dank! Diese Nachricht wurde zur Überprüfung gemeldet.",
+  "confirmTitle": "Sind Sie sicher?",
+  "confirmAction": "Bestätigen",
+  "cancelAction": "Abbrechen",
+  "deleteKeyConfirm": "Möchten Sie diesen API-Schlüssel wirklich widerrufen? Anwendungen verlieren sofort den Zugriff."
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
 import Card from './ui/Card';
 import Badge from './ui/Badge';
@@ -60,8 +61,9 @@ export default function UsersTab() {
     try {
       await api(`/admin/users/${userId}/grant-premium`, { method: 'POST', body: { days: 30 } });
       fetchUsers();
+      toast.success('30 days premium granted successfully.');
     } catch (err) {
-      alert(err.message || 'Failed to grant premium.');
+      toast.error(err.message || 'Failed to grant premium.');
     }
   };
 

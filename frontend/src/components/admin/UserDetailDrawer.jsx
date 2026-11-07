@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
+import { useConfirm } from '../ui/ConfirmDialog';
 
 export default function UserDetailDrawer({ userId, onClose, onUserUpdated }) {
+  const confirm = useConfirm();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -43,8 +46,9 @@ export default function UserDetailDrawer({ userId, onClose, onUserUpdated }) {
       setShowCustomGrantModal(false);
       await loadDetails();
       onUserUpdated?.();
+      toast.success(`Granted ${grantDays} days premium.`);
     } catch (err) {
-      alert(err.message || 'Failed to grant custom premium.');
+      toast.error(err.message || 'Failed to grant custom premium.');
     } finally {
       setActionLoading(false);
     }
@@ -61,36 +65,55 @@ export default function UserDetailDrawer({ userId, onClose, onUserUpdated }) {
       setShowSuspendModal(false);
       await loadDetails();
       onUserUpdated?.();
+      toast.success('User account suspended and active sessions revoked.');
     } catch (err) {
-      alert(err.message || 'Failed to suspend user.');
+      toast.error(err.message || 'Failed to suspend user.');
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleReactivate = async () => {
-    if (!confirm('Reactivate this user account and restore API/login access?')) return;
+    const ok = await confirm({
+      title: 'Reactivate User Account',
+      description: 'Reactivate this user account and restore API/login access?',
+      confirmText: 'Reactivate',
+      cancelText: 'Cancel',
+      destructive: false,
+    });
+    if (!ok) return;
+
     setActionLoading(true);
     try {
       await api(`/admin/users/${userId}/reactivate`, { method: 'POST' });
       await loadDetails();
       onUserUpdated?.();
+      toast.success('User account reactivated.');
     } catch (err) {
-      alert(err.message || 'Failed to reactivate user.');
+      toast.error(err.message || 'Failed to reactivate user.');
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleRevokeKey = async (keyId) => {
-    if (!confirm('Are you sure you want to revoke this developer API key immediately?')) return;
+    const ok = await confirm({
+      title: 'Revoke API Key',
+      description: 'Are you sure you want to revoke this developer API key immediately?',
+      confirmText: 'Revoke Key',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     setActionLoading(true);
     try {
       await api(`/admin/users/${userId}/api-keys/${keyId}`, { method: 'DELETE' });
       await loadDetails();
       onUserUpdated?.();
+      toast.success('Developer API key revoked.');
     } catch (err) {
-      alert(err.message || 'Failed to revoke API key.');
+      toast.error(err.message || 'Failed to revoke API key.');
     } finally {
       setActionLoading(false);
     }

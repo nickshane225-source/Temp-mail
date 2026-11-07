@@ -55,5 +55,17 @@
   "shareUrlReady": "您的分享链接已准备就绪：",
   "revoke": "撤销链接",
   "pwaInstall": "📱 安装应用",
-  "footer": "邮箱由独立的令牌保护，绝对保密。切勿与他人分享您的私密令牌。"
+  "footer": "邮箱由独立的令牌保护，绝对保密。切勿与他人分享您的私密令牌。",
+  "notifyDeniedToast": "要启用通知：点击地址栏中的锁定图标 → 网站设置 → 通知 → 允许",
+  "notifyEnabledToast": "桌面通知已启用！",
+  "notifyDisabledToast": "通知已关闭。",
+  "addressCopiedToast": "邮箱地址已复制到剪贴板！",
+  "codeCopiedToast": "验证码已复制到剪贴板！",
+  "timeAddedToast": "邮箱有效期已延长 30 分钟！",
+  "exportFailed": "导出失败。",
+  "reportSuccessToast": "谢谢！此邮件已被举报以供管理员审核。",
+  "confirmTitle": "确定要执行此操作吗？",
+  "confirmAction": "确定",
+  "cancelAction": "取消",
+  "deleteKeyConfirm": "您确定要立即撤销此 API 密钥吗？使用它的应用程序将立即失去访问权限。"
 }

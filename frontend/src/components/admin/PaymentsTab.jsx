@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
 import Card from './ui/Card';
 import StatCard from './ui/StatCard';
@@ -79,8 +80,9 @@ export default function PaymentsTab() {
       setReconcileTarget(null);
       fetchStats();
       fetchPayments();
+      toast.success('Payment successfully reconciled and premium granted.');
     } catch (err) {
-      alert(err.message || 'Failed to reconcile payment.');
+      toast.error(err.message || 'Failed to reconcile payment.');
     } finally {
       setReconciling(false);
     }

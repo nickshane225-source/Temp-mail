@@ -55,5 +55,17 @@
   "shareUrlReady": "Paylaşım bağlantınız hazır:",
   "revoke": "İptal et",
   "pwaInstall": "📱 Uygulamayı Yükle",
-  "footer": "Gelen kutuları gizlidir ve token ile korunur. Posta kutusu anahtarınızı asla paylaşmayın."
+  "footer": "Gelen kutuları gizlidir ve token ile korunur. Posta kutusu anahtarınızı asla paylaşmayın.",
+  "notifyDeniedToast": "Bildirimleri etkinleştirmek için: Adres çubuğundaki kilit simgesine tıklayın → Site ayarları → Bildirimler → İzin ver",
+  "notifyEnabledToast": "Masaüstü bildirimleri etkinleştirildi!",
+  "notifyDisabledToast": "Bildirimler devre dışı bırakıldı.",
+  "addressCopiedToast": "E-posta adresi panoya kopyalandı!",
+  "codeCopiedToast": "Doğrulama kodu panoya kopyalandı!",
+  "timeAddedToast": "Gelen kutusu süresine 30 dakika eklendi!",
+  "exportFailed": "Dışa aktarma başarısız oldu.",
+  "reportSuccessToast": "Teşekkürler! Bu mesaj yönetici incelemesi için bildirildi.",
+  "confirmTitle": "Emin misiniz?",
+  "confirmAction": "Onayla",
+  "cancelAction": "İptal",
+  "deleteKeyConfirm": "Bu API anahtarını iptal etmek istediğinizden emin misiniz? Kullanan uygulamalar anında erişimi kaybedecektir."
 }

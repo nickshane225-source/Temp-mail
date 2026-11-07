@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
 import QRCode from 'qrcode';
+import { toast } from 'sonner';
 import { api } from '../api';
 import { LANGUAGES, getInitialLang, applyLanguage, translate } from '../i18n';
 import { rewriteHtmlLinks } from '../utils/linkSafety';
@@ -621,6 +622,7 @@ export default function Home() {
     if (!box) return;
     navigator.clipboard.writeText(box.address);
     setCopied(true);
+    toast.success(translate(lang, 'addressCopiedToast'));
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -628,6 +630,7 @@ export default function Home() {
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     playNotificationSound();
+    toast.success(translate(lang, 'codeCopiedToast'));
     setTimeout(() => setCopiedCode(''), 2500);
   };
 
@@ -639,8 +642,10 @@ export default function Home() {
         token: box.token,
       });
       saveBox(b);
+      toast.success(translate(lang, 'timeAddedToast'));
     } catch (e) {
       setError(e.message);
+      toast.error(e.message);
     }
   };
 
@@ -664,13 +669,22 @@ export default function Home() {
   const toggleNotify = async () => {
     if (!notifyOn) {
       if ('Notification' in window) {
+        if (Notification.permission === 'denied') {
+          toast.warning(translate(lang, 'notifyDeniedToast'), {
+            duration: 8000,
+          });
+          return;
+        }
         const perm = await Notification.requestPermission();
         if (perm === 'granted') {
           localStorage.setItem(NOTIFY_KEY, 'true');
           setNotifyOn(true);
           playNotificationSound();
+          toast.success(translate(lang, 'notifyEnabledToast'));
         } else {
-          alert('Notification permission was denied in your browser settings.');
+          toast.warning(translate(lang, 'notifyDeniedToast'), {
+            duration: 8000,
+          });
         }
       } else {
         localStorage.setItem(NOTIFY_KEY, 'true');
@@ -679,6 +693,7 @@ export default function Home() {
     } else {
       localStorage.setItem(NOTIFY_KEY, 'false');
       setNotifyOn(false);
+      toast.info(translate(lang, 'notifyDisabledToast'));
     }
   };
 
@@ -722,7 +737,7 @@ export default function Home() {
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      alert(err.message || 'Export failed.');
+      toast.error(err.message || translate(lang, 'exportFailed'));
     } finally {
       setExportingZip(false);
     }
@@ -803,9 +818,9 @@ export default function Home() {
         body: { reason },
       });
       setReportedId(open._id);
-      alert('Thank you! This message has been reported for administrative review.');
+      toast.success(translate(lang, 'reportSuccessToast'));
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
 

@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
+import { useConfirm } from '../ui/ConfirmDialog';
 
 export default function AbuseTab() {
+  const confirm = useConfirm();
   const [reports, setReports] = useState([]);
   const [blocklist, setBlocklist] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,20 +56,30 @@ export default function AbuseTab() {
       setNewReason('');
       setIsWildcard(false);
       loadAbuseData();
+      toast.success('Block entry added successfully.');
     } catch (err) {
-      alert(err.message || 'Failed to add block entry.');
+      toast.error(err.message || 'Failed to add block entry.');
     } finally {
       setAddingBlock(false);
     }
   };
 
   const handleDeleteBlock = async (id) => {
-    if (!confirm('Remove this entry from the blocklist?')) return;
+    const ok = await confirm({
+      title: 'Remove Block Entry',
+      description: 'Are you sure you want to remove this entry from the blocklist?',
+      confirmText: 'Remove Block',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     try {
       await api(`/admin/blocklist/${id}`, { method: 'DELETE' });
       loadAbuseData();
+      toast.success('Block entry removed.');
     } catch (err) {
-      alert(err.message || 'Failed to delete block.');
+      toast.error(err.message || 'Failed to delete block.');
     }
   };
 
@@ -77,8 +90,9 @@ export default function AbuseTab() {
         body: { type: 'address', value: senderEmail, reason: 'Auto-blocked from Abuse Reports grouping' },
       });
       loadAbuseData();
+      toast.success(`Sender ${senderEmail} is now blocked.`);
     } catch (err) {
-      alert(err.message || 'Failed to block sender.');
+      toast.error(err.message || 'Failed to block sender.');
     }
   };
 

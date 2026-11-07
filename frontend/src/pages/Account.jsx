@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { useAuth } from '../auth/AuthContext';
+import { useConfirm } from '../components/ui/ConfirmDialog';
 
 export default function Account() {
   const { user, token, loading, isPremium, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
+  const confirm = useConfirm();
 
   const [newKeyName, setNewKeyName] = useState('');
   const [generatingKey, setGeneratingKey] = useState(false);
@@ -53,17 +56,25 @@ export default function Account() {
       setNewlyCreatedKey(data.apiKey);
       setNewKeyName('');
       await refreshUser();
+      toast.success('New API key generated successfully!');
     } catch (err) {
       setActionError(err.message || 'Error generating key');
+      toast.error(err.message || 'Error generating key');
     } finally {
       setGeneratingKey(false);
     }
   };
 
   const handleRevokeKey = async (keyId) => {
-    if (!window.confirm('Are you sure you want to revoke this API key? Applications using it will immediately lose access.')) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Revoke API Key',
+      description: 'Are you sure you want to revoke this API key? Applications using it will immediately lose access.',
+      confirmText: 'Revoke Key',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     setActionError('');
     setRevokingId(keyId);
     try {
@@ -76,8 +87,10 @@ export default function Account() {
         throw new Error(errJson.error || 'Failed to revoke key');
       }
       await refreshUser();
+      toast.success('API key revoked successfully.');
     } catch (err) {
       setActionError(err.message || 'Error revoking key');
+      toast.error(err.message || 'Error revoking key');
     } finally {
       setRevokingId(null);
     }
@@ -86,6 +99,7 @@ export default function Account() {
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(true);
+    toast.success('API key copied to clipboard!');
     setTimeout(() => setCopiedKey(false), 3000);
   };
 

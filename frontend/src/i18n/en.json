@@ -55,5 +55,17 @@
   "shareUrlReady": "Your share link is ready:",
   "revoke": "Revoke",
   "pwaInstall": "📱 Install App",
-  "footer": "Inboxes are private and protected with token authentication. Never share your mailbox token."
+  "footer": "Inboxes are private and protected with token authentication. Never share your mailbox token.",
+  "notifyDeniedToast": "To enable notifications: Click the lock icon in your address bar → Site settings → Notifications → Allow",
+  "notifyEnabledToast": "Desktop notifications enabled!",
+  "notifyDisabledToast": "Notifications disabled.",
+  "addressCopiedToast": "Email address copied to clipboard!",
+  "codeCopiedToast": "Verification code copied to clipboard!",
+  "timeAddedToast": "Added 30 minutes to mailbox lifetime!",
+  "exportFailed": "Export failed.",
+  "reportSuccessToast": "Thank you! This message has been reported for administrative review.",
+  "confirmTitle": "Are you sure?",
+  "confirmAction": "Confirm",
+  "cancelAction": "Cancel",
+  "deleteKeyConfirm": "Are you sure you want to revoke this API key? Applications using it will immediately lose access."
 }

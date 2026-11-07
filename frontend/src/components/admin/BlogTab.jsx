@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
+import { useConfirm } from '../ui/ConfirmDialog';
 
 export default function BlogTab() {
+  const confirm = useConfirm();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingPost, setEditingPost] = useState(null);
@@ -60,20 +63,30 @@ export default function BlogTab() {
       }
       setEditingPost(null);
       loadPosts();
+      toast.success('Blog post saved successfully.');
     } catch (err) {
-      alert(err.message || 'Failed to save post.');
+      toast.error(err.message || 'Failed to save post.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleDelete = async (id, title) => {
-    if (!confirm(`Permanently delete "${title}"?`)) return;
+    const ok = await confirm({
+      title: 'Delete Blog Post',
+      description: `Are you sure you want to permanently delete "${title}"?`,
+      confirmText: 'Delete Post',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     try {
       await api(`/admin/posts/${id}`, { method: 'DELETE' });
       loadPosts();
+      toast.success('Blog post deleted.');
     } catch (err) {
-      alert(err.message || 'Failed to delete post.');
+      toast.error(err.message || 'Failed to delete post.');
     }
   };
 

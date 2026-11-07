@@ -2,6 +2,8 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './auth/AuthContext.jsx';
+import { ConfirmProvider } from './components/ui/ConfirmDialog.jsx';
+import { ThemedToaster } from './components/ui/ThemedToaster.jsx';
 import Home from './pages/Home.jsx';
 import Admin from './pages/Admin.jsx';
 import ShareView from './pages/ShareView.jsx';
@@ -25,19 +27,22 @@ if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <AuthProvider>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/share/:token" element={<ShareView />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/blog/:slug" element={<BlogPost />} />
-        <Route path="/api/docs" element={<ApiDocs />} />
-        <Route path="/premium" element={<Premium />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/confirm-link" element={<ConfirmLink />} />
-      </Routes>
+      <ConfirmProvider>
+        <ThemedToaster />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/share/:token" element={<ShareView />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogPost />} />
+          <Route path="/api/docs" element={<ApiDocs />} />
+          <Route path="/premium" element={<Premium />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/confirm-link" element={<ConfirmLink />} />
+        </Routes>
+      </ConfirmProvider>
     </AuthProvider>
   </BrowserRouter>
 );

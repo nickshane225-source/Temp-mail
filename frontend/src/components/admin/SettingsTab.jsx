@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 import { api } from '../../api';
 import Toggle from './ui/Toggle';
 import Card from './ui/Card';
+import { useConfirm } from '../ui/ConfirmDialog';
 
 export default function SettingsTab() {
+  const confirm = useConfirm();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,16 +39,25 @@ export default function SettingsTab() {
       });
       setSettings(updated);
       setSaveSuccess(true);
+      toast.success('System settings saved successfully.');
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
-      alert(err.message || 'Failed to save settings.');
+      toast.error(err.message || 'Failed to save settings.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleManualCleanup = async () => {
-    if (!confirm(`Purge all mailboxes and messages older than ${cleanupDays} days?`)) return;
+    const ok = await confirm({
+      title: 'Purge Mailboxes & Messages',
+      description: `Purge all mailboxes and messages older than ${cleanupDays} days? This operation is permanent.`,
+      confirmText: 'Purge Expired Data',
+      cancelText: 'Cancel',
+      destructive: true,
+    });
+    if (!ok) return;
+
     setCleaning(true);
     try {
       const report = await api('/admin/cleanup', {
@@ -54,8 +66,9 @@ export default function SettingsTab() {
       });
       setCleanupReport(report);
       loadSettings();
+      toast.success(`Cleanup complete: deleted ${report?.deletedMailboxes ?? 0} mailboxes, ${report?.deletedMessages ?? 0} messages.`);
     } catch (err) {
-      alert(err.message || 'Data cleanup failed.');
+      toast.error(err.message || 'Data cleanup failed.');
     } finally {
       setCleaning(false);
     }
