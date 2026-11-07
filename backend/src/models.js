@@ -240,7 +240,7 @@ export async function getSettings() {
     geminiAutoBlogEnabled: true,
     geminiAutoBlogIntervalHours: 24,
     geminiModel: 'gemini-3.8-flash',
-    geminiImageModel: 'gemini-nano-banana-2.1',
+    geminiImageModel: 'gemini-3-pro-image',
     lastAutoBlogRun: null,
     maintenanceMode: false,
     featureFlags: { ads: false, premiumSignup: true, apiAccess: true, userRegistration: true },

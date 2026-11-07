@@ -290,8 +290,23 @@ export default function SettingsTab() {
                 <option value="gemini-4-argon">gemini-4-argon (Most Powerful Reasoning)</option>
                 <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite (Ultra Fast)</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+                Photorealistic Cover Image Model
+              </label>
+              <select
+                value={settings.geminiImageModel || 'gemini-3-pro-image'}
+                onChange={(e) => setSettings({ ...settings, geminiImageModel: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold"
+              >
+                <option value="gemini-3-pro-image">gemini-3-pro-image (Nano Banana Pro · Photorealistic & Ultra High Quality)</option>
+                <option value="gemini-nano-banana-2.1">gemini-nano-banana-2.1 (Nano Banana 2.1 · Balanced)</option>
+                <option value="gemini-3.1-flash-lite-image">gemini-3.1-flash-lite-image (Nano Banana 2 Lite · Ultra Fast)</option>
+              </select>
               <span className="text-[10px] text-slate-400 mt-1 block">
-                Image generation automatically uses <code className="text-teal-600">gemini-nano-banana-2.1</code> with SVG fallback.
+                Generates high-definition photorealistic 16:9 editorial imagery with automatic high-resolution photography fallbacks.
               </span>
             </div>
           </div>

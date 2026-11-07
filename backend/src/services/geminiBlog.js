@@ -3,17 +3,44 @@ import { Post, Setting, getSettings } from '../models.js';
 
 // Curated rotation of high-authority privacy, security, and temp mail topics
 export const DEFAULT_BLOG_TOPICS = [
+  'Inside a Security Operations Center: How Analysts Detect and Stop Account Takeovers',
   'How Disposable Temp Mail Stops Data Broker Profiling in 2026',
-  'Why You Should Never Use Your Primary Email for Free WiFi or Public Signups',
-  'The Anatomy of a Credential Stuffing Attack: How Burner Inboxes Shield You',
+  'Hardware Security Keys vs Burner Inboxes: Layered Defense for Everyday Privacy',
+  'Why You Should Never Use Your Primary Email for Airport or Cafe Public WiFi',
+  'The Anatomy of a Credential Stuffing Attack: How Throwaway Inboxes Shield You',
   'Automating QA and User Signups: A Developer Guide to Disposable Email APIs',
   'How Phishing Scams Bypass Spam Filters: Staying Safe with One-Time Inboxes',
   'Protecting Your Primary Inbox: The Complete Guide to Email Hygiene and Alias Security',
-  'SMS vs Email OTP: Why Temporary Email Inboxes Are Becoming the Developer Favorite',
   'Dark Web Leaks in 2026: How Throwaway Addresses Minimize Your Digital Footprint',
+  'Zero-Trust Digital Privacy: Hardening Your Everyday Devices with Temporary Inboxes',
   'The Risk of Reusing Passwords and Email Addresses Across Gaming and Social Sites',
   'Privacy-First Web Browsing: Combining VPNs, Disposable Emails, and Ad Blockers',
 ];
+
+/**
+ * Curated high-resolution editorial cybersecurity photographs (1200x630, 85% quality, 16:9 aspect ratio)
+ * Used as ultra-reliable photorealistic fallback when AI image generation quota is unavailable
+ */
+export const REALISTIC_CYBER_COVERS = [
+  'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&h=630&q=85', // High-tech Server Room & Security Operations Center
+  'https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=1200&h=630&q=85', // Cryptographic Data Protection & Digital Security
+  'https://images.unsplash.com/photo-1510511459019-5dda7724fd87?auto=format&fit=crop&w=1200&h=630&q=85', // Hardware Security Key & Encrypted Privacy
+  'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1200&h=630&q=85', // Cybersecurity Binary Stream & Real Encryption
+  'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&h=630&q=85', // Enterprise Cloud Infrastructure & Server Racks
+  'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=1200&h=630&q=85', // Fiber Optic Network & Encrypted Backbones
+  'https://images.unsplash.com/photo-1614064641938-3bbee52942c7?auto=format&fit=crop&w=1200&h=630&q=85', // Cyber Padlock & Identity Shield
+  'https://images.unsplash.com/photo-1504639725590-34d0984388bd?auto=format&fit=crop&w=1200&h=630&q=85', // Secure Developer Station & Privacy Code
+];
+
+export function getRealisticFallbackCover(title = '') {
+  let hash = 0;
+  for (let i = 0; i < title.length; i++) {
+    hash = (hash << 5) - hash + title.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % REALISTIC_CYBER_COVERS.length;
+  return REALISTIC_CYBER_COVERS[idx];
+}
 
 /**
  * Returns the effective Gemini API key (MongoDB setting takes priority, falls back to process.env)
@@ -109,7 +136,7 @@ Your response MUST be ONLY valid JSON matching this schema exactly (without mark
   "slug": "unique-kebab-case-slug-based-on-title",
   "metaDescription": "Concise summary for search engines and social cards (130-160 characters)",
   "tags": ["Privacy", "Security", "TempMail", "Cybersecurity", "IdentityProtection"],
-  "imagePrompt": "Detailed visual prompt for generating a sleek 3D illustration or minimalist cyber security digital art representing this concept. Teal and slate theme, clean geometric lines, no readable letters or text on image.",
+  "imagePrompt": "An ultra-photorealistic, high-resolution 8k editorial photograph depicting this cybersecurity concept in real life. Describe an authentic real-world scene (e.g. an illuminated cybersecurity operations center with moody lighting and glowing server racks, an encrypted modern glass office workspace with high-end laptops, or cybersecurity professionals at work). Specify 35mm lens, f/1.8 aperture, shallow depth of field, dramatic atmospheric lighting, ultra-sharp photographic detail. NO cartoons, NO 3D rendering, NO digital drawings. Strictly NO text, NO watermarks, and NO letters anywhere on the image.",
   "body": "Detailed article in Markdown format. Include an introduction explaining why this matters now, 3-4 structured sections with H2 and H3 headings, actionable privacy tips, bullet points, real-world examples, and a conclusion on using temporary email to stay safe."
 }`;
 
@@ -160,28 +187,38 @@ Your response MUST be ONLY valid JSON matching this schema exactly (without mark
     slug = `${slug}-${Date.now().toString().slice(-4)}`;
   }
 
-  // Attempt image generation with Gemini, with candidate fallbacks
+  // Attempt image generation with Gemini, prioritizing highest photorealistic quality
   let coverImage = '';
   const candidateImageModels = [
     configuredImageModel,
-    'gemini-nano-banana-2.1',
-    'gemini-3.1-flash-lite-image',
+    'gemini-3-pro-image',          // Nano Banana Pro: Highest photorealistic quality & resolution
+    'gemini-nano-banana-2.1',      // Nano Banana 2.1: High-efficiency multimodal generation
+    'gemini-3.1-flash-lite-image', // Nano Banana 2 Lite: Ultra-fast fallback
   ].filter((m, idx, arr) => m && arr.indexOf(m) === idx);
 
   for (const imgModel of candidateImageModels) {
     try {
       const imgPrompt =
         articleData.imagePrompt ||
-        `Modern high-tech 3D cybersecurity concept art for ${articleData.title}, glowing teal and dark slate, minimalist, no text`;
+        `An ultra-photorealistic 8k cinematic shot of a modern cybersecurity operations center with glowing server racks, atmospheric moody teal and slate lighting, 35mm lens, shallow depth of field, authentic photographic texture, no text, no letters.`;
 
+      console.log(`[Gemini Blog] Attempting realistic image generation using model "${imgModel}"...`);
       const imgInteraction = await ai.interactions.create({
         model: imgModel,
         input: imgPrompt,
+        response_format: [
+          {
+            type: 'image',
+            mime_type: 'image/jpeg',
+            aspect_ratio: '16:9',
+          },
+        ],
       });
 
       if (imgInteraction.output_image?.data) {
-        const mime = imgInteraction.output_image.mime_type || 'image/png';
+        const mime = imgInteraction.output_image.mime_type || 'image/jpeg';
         coverImage = `data:${mime};base64,${imgInteraction.output_image.data}`;
+        console.log(`[Gemini Blog] Successfully generated high-quality realistic image with "${imgModel}".`);
         break;
       }
     } catch (imgErr) {
@@ -189,9 +226,9 @@ Your response MUST be ONLY valid JSON matching this schema exactly (without mark
     }
   }
 
-  // If no coverImage from API, ensure we have the vector cover
+  // If no coverImage from API, use curated photorealistic editorial photography, then SVG fallback
   if (!coverImage) {
-    coverImage = generateFallbackCoverSvg(articleData.title, articleData.tags?.[0] || 'Security');
+    coverImage = getRealisticFallbackCover(articleData.title) || generateFallbackCoverSvg(articleData.title, articleData.tags?.[0] || 'Security');
   }
 
   // Calculate 7-day retention expiration date

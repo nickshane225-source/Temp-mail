@@ -9,6 +9,8 @@ import { Admin, Post, Setting } from '../src/models.js';
 import { cleanupOldData } from '../src/cleanup.js';
 import {
   generateFallbackCoverSvg,
+  getRealisticFallbackCover,
+  REALISTIC_CYBER_COVERS,
   getGeminiApiKey,
 } from '../src/services/geminiBlog.js';
 
@@ -38,6 +40,13 @@ describe('Gemini AI Blog Automation & 7-Day MongoDB Cleanup', () => {
     expect(svgData).toContain('data:image/svg+xml;utf8,');
     expect(svgData).toContain('How%20Temp%20Mail%20Stops%20Phishing');
     expect(svgData).toContain('CYBERSECURITY');
+  });
+
+  it('provides high-resolution photorealistic cybersecurity cover photography', () => {
+    const photoUrl = getRealisticFallbackCover('Advanced Phishing Attacks in 2026');
+    expect(photoUrl).toBeDefined();
+    expect(photoUrl).toContain('https://images.unsplash.com/');
+    expect(REALISTIC_CYBER_COVERS).toContain(photoUrl);
   });
 
   it('resolves Gemini API key from MongoDB setting or environment variable', async () => {

@@ -1346,6 +1346,7 @@ r.get('/blog/ai-status', async (_req, res) => {
     intervalHours: Number(settings.geminiAutoBlogIntervalHours) || 24,
     lastRun: settings.lastAutoBlogRun || null,
     model: settings.geminiModel || 'gemini-3.8-flash',
+    imageModel: settings.geminiImageModel || 'gemini-3-pro-image',
     lastCleanup,
   });
 });
@@ -1423,6 +1424,7 @@ r.put('/settings', requireOwner, async (req, res) => {
     if (hours >= 1 && hours <= 168) updates.push(['geminiAutoBlogIntervalHours', hours]);
   }
   if (req.body?.geminiModel !== undefined) updates.push(['geminiModel', String(req.body.geminiModel).trim()]);
+  if (req.body?.geminiImageModel !== undefined) updates.push(['geminiImageModel', String(req.body.geminiImageModel).trim()]);
 
   for (const [key, value] of updates) {
     await Setting.updateOne({ key }, { value }, { upsert: true });
