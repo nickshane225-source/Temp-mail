@@ -233,6 +233,6 @@ export async function ensureCornerstoneArticles() {
     }
   }
   if (seeded > 0) {
-    console.log(\`Successfully seeded \${seeded} permanent cornerstone articles for AdSense and SEO.\`);
+    console.log(`Successfully seeded ${seeded} permanent cornerstone articles for AdSense and SEO.`);
   }
 }
