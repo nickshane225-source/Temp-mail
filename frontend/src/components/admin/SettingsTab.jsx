@@ -312,6 +312,122 @@ export default function SettingsTab() {
           </div>
         </div>
 
+        {/* Google AdSense & Advertising Settings */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <span>💰</span> Google AdSense & Monetization
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Manage your Google AdSense publisher ID, ads.txt verification file, and ad placements.
+              </p>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold">
+              <input
+                type="checkbox"
+                checked={settings.adsEnabled !== false}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    adsEnabled: e.target.checked,
+                  })
+                }
+                className="w-4 h-4 rounded text-teal-600"
+              />
+              <span>Ads Enabled</span>
+            </label>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">
+                Google AdSense Publisher ID
+              </label>
+              <input
+                type="text"
+                placeholder="pub-1052993488526571"
+                value={settings.adsensePublisherId || 'pub-1052993488526571'}
+                onChange={(e) => setSettings({ ...settings, adsensePublisherId: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono"
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Your Google AdSense account ID (<code className="text-teal-600">ca-pub-1052993488526571</code>).
+              </span>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-slate-500 uppercase">
+                  ads.txt Records
+                </label>
+                <a
+                  href="/ads.txt"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] text-teal-600 hover:underline font-semibold"
+                >
+                  View /ads.txt ↗
+                </a>
+              </div>
+              <textarea
+                rows={3}
+                placeholder="google.com, pub-1052993488526571, DIRECT, f08c47fec0942fa0"
+                value={settings.adsTxt || 'google.com, pub-1052993488526571, DIRECT, f08c47fec0942fa0'}
+                onChange={(e) => setSettings({ ...settings, adsTxt: e.target.value })}
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono"
+              />
+              <span className="text-[10px] text-slate-400 mt-1 block">
+                Served automatically at <code className="text-teal-600">/ads.txt</code> for Google AdSense verification.
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
+            <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+              Ad Unit Placements (HTML / JavaScript)
+            </h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                  Header Ad Unit (Above Inbox)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="<ins class='adsbygoogle' ...></ins>"
+                  value={settings.adHeader || ''}
+                  onChange={(e) => setSettings({ ...settings, adHeader: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                  Below Address Card Ad Unit
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="<ins class='adsbygoogle' ...></ins>"
+                  value={settings.adBelowCard || ''}
+                  onChange={(e) => setSettings({ ...settings, adBelowCard: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] font-mono"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                  Sidebar / Message Reader Ad Unit
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="<ins class='adsbygoogle' ...></ins>"
+                  value={settings.adSidebar || ''}
+                  onChange={(e) => setSettings({ ...settings, adSidebar: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-[11px] font-mono"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Global Announcement Banner Editor */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm space-y-4">
           <div className="flex items-center justify-between">

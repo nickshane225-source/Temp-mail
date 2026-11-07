@@ -100,9 +100,18 @@ app.use('/api/user', userRoutes);
 app.use('/api/v1', v1Routes);
 app.use('/api', publicRoutes);
 
-// Root level sitemap.xml and robots.txt for search engines
+// Root level sitemap.xml, robots.txt, and Google AdSense ads.txt
 app.get('/sitemap.xml', (_req, res) => res.redirect('/api/sitemap.xml'));
 app.get('/robots.txt', (_req, res) => res.redirect('/api/robots.txt'));
+app.get('/ads.txt', async (_req, res) => {
+  try {
+    const settings = await getSettings();
+    const content = settings.adsTxt || 'google.com, pub-1052993488526571, DIRECT, f08c47fec0942fa0';
+    res.type('text/plain').send(content.trim() + '\n');
+  } catch {
+    res.type('text/plain').send('google.com, pub-1052993488526571, DIRECT, f08c47fec0942fa0\n');
+  }
+});
 
 // Return clean JSON error for body-too-large and malformed payloads
 app.use((err, _req, res, next) => {

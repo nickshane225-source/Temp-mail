@@ -1399,6 +1399,8 @@ r.put('/settings', requireOwner, async (req, res) => {
   if (reserved) updates.push(['reservedNames', reserved]);
 
   if (req.body?.adsEnabled !== undefined) updates.push(['adsEnabled', !!req.body.adsEnabled]);
+  if (req.body?.adsensePublisherId !== undefined) updates.push(['adsensePublisherId', String(req.body.adsensePublisherId).trim()]);
+  if (req.body?.adsTxt !== undefined) updates.push(['adsTxt', String(req.body.adsTxt).trim()]);
   if (req.body?.adHeader !== undefined) updates.push(['adHeader', String(req.body.adHeader)]);
   if (req.body?.adBelowCard !== undefined) updates.push(['adBelowCard', String(req.body.adBelowCard)]);
   if (req.body?.adSidebar !== undefined) updates.push(['adSidebar', String(req.body.adSidebar)]);

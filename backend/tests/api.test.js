@@ -853,6 +853,11 @@ describe('Phase 1 Security & Core Tests', () => {
         expect(resRobots.status).toBe(200);
         expect(resRobots.text).toContain('User-agent: *');
         expect(resRobots.text).toContain('Sitemap:');
+
+        // Google AdSense ads.txt endpoint
+        const resAdsTxt = await request(app).get('/ads.txt');
+        expect(resAdsTxt.status).toBe(200);
+        expect(resAdsTxt.text).toContain('google.com, pub-1052993488526571, DIRECT, f08c47fec0942fa0');
       });
     });
 
