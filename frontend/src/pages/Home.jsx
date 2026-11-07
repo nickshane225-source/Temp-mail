@@ -547,7 +547,11 @@ export default function Home() {
           const effectiveExp = remoteExp - Date.now() > 35 * 60 * 1000
             ? new Date(Date.now() + 30 * 60 * 1000).toISOString()
             : res.expiresAt;
-          setBox((prev) => (prev ? { ...prev, expiresAt: effectiveExp } : prev));
+          setBox((prev) => {
+            if (!prev) return prev;
+            if (prev.expiresAt === effectiveExp) return prev;
+            return { ...prev, expiresAt: effectiveExp };
+          });
         }
         if (res?.isLocked !== undefined) {
           setIsInboxLocked(Boolean(res.isLocked));
@@ -565,6 +569,10 @@ export default function Home() {
           return list;
         });
       } catch (e) {
+        if (e.status === 429) {
+          // Rate limited: quietly pause and wait for next scheduled interval
+          return;
+        }
         if (e.status === 423) {
           setIsInboxLocked(true);
           setHasPassword(true);
@@ -582,16 +590,20 @@ export default function Home() {
     [domain, inboxPassword]
   );
 
-  // SSE Stream connection with Polling fallback
+  const activeAddress = box?.address || '';
+  const activeToken = box?.token || '';
+
+  // SSE Stream connection with Polling fallback (depends on address and token, NOT mutable box object)
   useEffect(() => {
-    if (!box || !box.address || !box.token) return;
-    loadMessages(box);
+    if (!activeAddress || !activeToken) return;
+    const targetBox = { address: activeAddress, token: activeToken };
+    loadMessages(targetBox);
 
     let eventSource = null;
     let fallbackInterval = null;
 
     const setupSSE = () => {
-      const url = `/api/mailbox/${encodeURIComponent(box.address)}/stream?token=${encodeURIComponent(box.token)}`;
+      const url = `/api/mailbox/${encodeURIComponent(activeAddress)}/stream?token=${encodeURIComponent(activeToken)}`;
       eventSource = new EventSource(url);
 
       eventSource.addEventListener('initial', (e) => {
@@ -629,14 +641,14 @@ export default function Home() {
           eventSource = null;
         }
         if (!fallbackInterval) {
-          fallbackInterval = setInterval(() => loadMessages(box), 5000);
+          fallbackInterval = setInterval(() => loadMessages(targetBox), 6000);
         }
       };
     };
 
     setupSSE();
     // Dual-layer heartbeat: periodic background poll ensures messages arrive even if SSE stream drops or buffers
-    const dualPollTimer = setInterval(() => loadMessages(box), 10000);
+    const dualPollTimer = setInterval(() => loadMessages(targetBox), 12000);
 
     return () => {
       if (eventSource) {
@@ -645,7 +657,7 @@ export default function Home() {
       if (fallbackInterval) clearInterval(fallbackInterval);
       clearInterval(dualPollTimer);
     };
-  }, [box, loadMessages]);
+  }, [activeAddress, activeToken, loadMessages]);
 
   const rawLeft = box ? Math.max(0, Math.floor((new Date(box.expiresAt).getTime() - now) / 1000)) : 0;
   // 30 days time count removed: clamp any legacy multi-day value to 30 minutes (1800s)

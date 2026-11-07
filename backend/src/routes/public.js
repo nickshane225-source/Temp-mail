@@ -42,7 +42,7 @@ const createDailyLimiter = rateLimit({
 const inboundLimiter = rateLimit({ windowMs: 60 * 1000, max: 120, message: { error: 'Too many inbound requests. Try again later.' } });
 const messagePollLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: process.env.NODE_ENV === 'test' ? 10000 : 180,
+  max: process.env.NODE_ENV === 'test' ? 10000 : 300,
   message: { error: 'Too many mailbox checks. Please slow down.' },
   standardHeaders: true,
   legacyHeaders: false,
